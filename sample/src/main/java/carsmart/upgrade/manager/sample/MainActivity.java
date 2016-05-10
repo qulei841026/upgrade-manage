@@ -1,13 +1,21 @@
 package carsmart.upgrade.manager.sample;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+
+import carsmart.upgrade.manager.OnConfirmUpgradeListener;
+import carsmart.upgrade.manager.Upgrade;
+import carsmart.upgrade.manager.UpgradeConfig;
+import carsmart.upgrade.manager.UpgradeManager;
+import carsmart.upgrade.manager.interceptor.DialogInterceptor;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -19,11 +27,11 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        assert fab != null;
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                upgradeVersion();
             }
         });
     }
@@ -48,5 +56,38 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+
+    public void upgradeVersion() {
+        UpgradeManager upgradeManager = new UpgradeManager(new UpgradeConfig.Builder()
+                .setDialogInterceptor(new DialogInterceptor() {
+                    @Override
+                    public Dialog intercept(String prompt, boolean isForce, final OnConfirmUpgradeListener listener) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this)
+                                .setMessage("自定义升级对话框")
+                                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        listener.onUpgrade();
+                                    }
+                                })
+                                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+
+                                    }
+                                });
+                        return builder.create();
+                    }
+                }).setContext(MainActivity.this).create());
+
+        Upgrade upgrade = new Upgrade();
+
+        upgrade.isForce = true;
+        upgrade.prompt = "重要升级";
+
+        upgradeManager.setUpgrade(upgrade);
+
     }
 }
