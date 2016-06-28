@@ -61,33 +61,35 @@ public class MainActivity extends AppCompatActivity {
 
     public void upgradeVersion() {
         UpgradeManager upgradeManager = new UpgradeManager(new UpgradeConfig.Builder()
-                .setDialogInterceptor(new DialogInterceptor() {
-                    @Override
-                    public Dialog intercept(String prompt, boolean isForce, final OnConfirmUpgradeListener listener) {
-                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this)
-                                .setMessage("自定义升级对话框")
-                                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        listener.onUpgrade();
-                                    }
-                                })
-                                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-
-                                    }
-                                });
-                        return builder.create();
-                    }
-                }).setContext(MainActivity.this).create());
+                .setContext(MainActivity.this).create());
 
         Upgrade upgrade = new Upgrade();
 
-        upgrade.isForce = true;
+        upgrade.isForce = false;
         upgrade.prompt = "重要升级";
 
         upgradeManager.setUpgrade(upgrade);
 
     }
+
+    DialogInterceptor interceptor = new DialogInterceptor() {
+        @Override
+        public Dialog intercept(String prompt, boolean isForce, final OnConfirmUpgradeListener listener) {
+            return new AlertDialog.Builder(MainActivity.this)
+                    .setMessage("自定义升级对话框")
+                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            listener.onUpgrade();
+                        }
+                    })
+                    .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    }).create();
+        }
+    };
+
 }
