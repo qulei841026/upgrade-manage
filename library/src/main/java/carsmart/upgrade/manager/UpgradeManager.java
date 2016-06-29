@@ -3,7 +3,11 @@ package carsmart.upgrade.manager;
 import android.app.Dialog;
 import android.support.annotation.NonNull;
 
+import carsmart.upgrade.manager.download.DownloadApk;
+
 public final class UpgradeManager {
+
+    String url = "http://pkg3.fire.im/3bb68550c4aa15fa92841de39aad36eb2133286e.apk";
 
     UpgradeConfig upgradeConfig;
 
@@ -17,7 +21,7 @@ public final class UpgradeManager {
     private OnConfirmUpgradeListener upgradeListener = new OnConfirmUpgradeListener() {
         @Override
         public void onUpgrade() {
-
+            downloadApk.download(url);
         }
     };
 
@@ -37,8 +41,5 @@ public final class UpgradeManager {
         }
     }
 
-//    private void upgrade() {
-//        loadApk.download();
-//    }
 
 }
