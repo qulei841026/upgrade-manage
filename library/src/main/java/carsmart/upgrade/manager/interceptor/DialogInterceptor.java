@@ -3,8 +3,9 @@ package carsmart.upgrade.manager.interceptor;
 import android.app.Dialog;
 
 import carsmart.upgrade.manager.OnConfirmUpgradeListener;
+import carsmart.upgrade.manager.Upgrade;
 
 public interface DialogInterceptor {
 
-    Dialog intercept(String prompt, boolean isForce, OnConfirmUpgradeListener listener);
+    Dialog intercept(Upgrade upgrade, OnConfirmUpgradeListener listener);
 }
