@@ -4,10 +4,9 @@ import android.app.Dialog;
 import android.support.annotation.NonNull;
 
 import carsmart.upgrade.manager.download.DownloadApk;
+import carsmart.upgrade.manager.download.OnDownloadListener;
 
 public final class UpgradeManager {
-
-    String url = "http://pkg3.fire.im/3bb68550c4aa15fa92841de39aad36eb2133286e.apk";
 
     UpgradeConfig upgradeConfig;
 
@@ -15,12 +14,18 @@ public final class UpgradeManager {
 
     public UpgradeManager(@NonNull UpgradeConfig config) {
         this.upgradeConfig = config;
-        downloadApk = new DownloadApk(config.context);
+        downloadApk = new DownloadApk(config.context)
+                .setDownloadPath(config.downloadPath)
+                .setAutoInstall(config.isAutoInstall);
+    }
+
+    public void setOnDownloadListener(OnDownloadListener listener) {
+        downloadApk.setOnDownloadListener(listener);
     }
 
     private OnConfirmUpgradeListener upgradeListener = new OnConfirmUpgradeListener() {
         @Override
-        public void onUpgrade() {
+        public void onUpgrade(String url) {
             downloadApk.download(url);
         }
     };
@@ -29,11 +34,9 @@ public final class UpgradeManager {
         Dialog dialog;
 
         if (upgradeConfig.dialogInterceptor == null) {
-            dialog = UpgradeDialog.createDialog(upgradeConfig.context, upgrade.prompt,
-                    upgrade.isForce, upgradeListener);
+            dialog = UpgradeDialog.createDialog(upgradeConfig.context, upgrade, upgradeListener);
         } else {
-            dialog = upgradeConfig.dialogInterceptor.intercept(upgrade.prompt, upgrade.isForce,
-                    upgradeListener);
+            dialog = upgradeConfig.dialogInterceptor.intercept(upgrade, upgradeListener);
         }
 
         if (dialog != null) {

@@ -15,6 +15,7 @@ import carsmart.upgrade.manager.OnConfirmUpgradeListener;
 import carsmart.upgrade.manager.Upgrade;
 import carsmart.upgrade.manager.UpgradeConfig;
 import carsmart.upgrade.manager.UpgradeManager;
+import carsmart.upgrade.manager.download.DownloadPath;
 import carsmart.upgrade.manager.interceptor.DialogInterceptor;
 
 public class MainActivity extends AppCompatActivity {
@@ -58,29 +59,37 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    String url = "http://pkg3.fir.im/3bb68550c4aa15fa92841de39aad36eb2133286e.apk";
 
     public void upgradeVersion() {
         UpgradeManager upgradeManager = new UpgradeManager(new UpgradeConfig.Builder()
+                .setDialogInterceptor(interceptor)
+                .setAutoInstall(true)
+                .setDownloadPath(new DownloadPath("Download", "upgrade-sample.apk"))
                 .setContext(MainActivity.this).create());
 
-        Upgrade upgrade = new Upgrade();
-
-        upgrade.isForce = false;
-        upgrade.prompt = "重要升级";
-
-        upgradeManager.setUpgrade(upgrade);
+        upgradeManager.setUpgrade(createUpgrade());
 
     }
 
+    Upgrade createUpgrade() {
+        Upgrade upgrade = new Upgrade();
+        upgrade.url = url;
+        upgrade.isForce = false;
+        upgrade.prompt = "App升级";
+        return upgrade;
+    }
+
+
     DialogInterceptor interceptor = new DialogInterceptor() {
         @Override
-        public Dialog intercept(String prompt, boolean isForce, final OnConfirmUpgradeListener listener) {
+        public Dialog intercept(final Upgrade upgrade, final OnConfirmUpgradeListener listener) {
             return new AlertDialog.Builder(MainActivity.this)
                     .setMessage("自定义升级对话框")
                     .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            listener.onUpgrade();
+                            listener.onUpgrade(upgrade.url);
                         }
                     })
                     .setNegativeButton("取消", new DialogInterface.OnClickListener() {
